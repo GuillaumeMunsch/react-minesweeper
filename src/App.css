@@ -38,6 +38,33 @@
   }
 }
 
-td {
+div {
     cursor: pointer;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.cell {
+    display: flex;
+    height: 25px;
+    width: 25px;
+    background-color: aquamarine;
+    border-style: outset;
+    border-color: coral;
+    border-width: 2px;
+    color: red;
+    justify-content: center;
+    align-items: center;
+    font-size: medium;
+}
+
+.cell-flagged {
+    border-style: outset;
+}
+
+.cell-discovered {
+    border-style: none;
 }

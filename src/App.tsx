@@ -25,11 +25,7 @@ class App extends Component<Props, State> {
     };
   }
 
-  onClickCell = (
-    e: React.MouseEvent<HTMLTableDataCellElement, MouseEvent>,
-    x: number,
-    y: number
-  ): void => {
+  onClickCell = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, x: number, y: number): void => {
     console.log(x, y);
     if (e.type === 'click') {
       console.log('Left click');
@@ -40,20 +36,22 @@ class App extends Component<Props, State> {
   };
 
   renderGame = (): ReactNode => (
-    <table>
+    <div>
       {this.state.gameMap.map((row, x) => (
-        <tr>
+        <div className="row" key={x}>
           {row.map((cell, y) => (
-            <td
+            <div
+              className="cell"
               onContextMenu={e => this.onClickCell(e, x, y)}
               onClick={e => this.onClickCell(e, x, y)}
+              key={`${x}-${y}`}
             >
-              {cell.neighborMines}
-            </td>
+              <span className="cell-text">{cell.neighborMines}</span>
+            </div>
           ))}
-        </tr>
+        </div>
       ))}
-    </table>
+    </div>
   );
 
   render() {
