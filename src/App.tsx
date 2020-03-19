@@ -1,10 +1,12 @@
 import React, { Component, ReactNode } from 'react';
 import { Cell, CellState } from 'types/Cell';
+import { GameType } from 'types/GameType';
 import './App.css';
 
 interface Props {}
 
 interface State {
+  gameSize: GameType;
   gameMap: Cell[][];
 }
 
@@ -12,6 +14,7 @@ class App extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
+      gameSize: GameType.SMALL,
       gameMap: [
         [
           { state: CellState.UNDISCOVERED, neighborMines: 1, mined: true },
@@ -57,7 +60,12 @@ class App extends Component<Props, State> {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
+        <div className="App-header">
+          <a className="btn">SMALL</a>
+          <a className="btn">MEDIUM</a>
+          <a className="btn">BIG</a>
+        </div>
+        <header className="App-game">
           <div>{this.renderGame()}</div>
         </header>
       </div>
