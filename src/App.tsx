@@ -1,6 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import { Cell, CellState } from 'types/Cell';
 import { GameType } from 'types/GameType';
+import flag from 'assets/flag.svg';
 import './App.css';
 
 interface Props {}
@@ -22,7 +23,7 @@ class App extends Component<Props, State> {
         ],
         [
           { state: CellState.DISCOVERED, neighborMines: 3, mined: true },
-          { state: CellState.DISCOVERED, neighborMines: 4, mined: true },
+          { state: CellState.FLAGGED, neighborMines: 4, mined: true },
         ],
       ],
     };
@@ -47,9 +48,13 @@ class App extends Component<Props, State> {
         onClick={e => this.onClickCell(e, x, y)}
         key={`${x}-${y}`}
       >
-        <span className="cell-text">{cell.neighborMines}</span>
+        <span className="cell-text">{this.renderCellContent(cell)}</span>
       </div>
     );
+  };
+
+  renderCellContent = (cell: Cell) => {
+    return <img src={flag} className="App-logo" alt="logo" />;
   };
 
   renderGame = (): ReactNode => (
