@@ -18,11 +18,11 @@ class App extends Component<Props, State> {
       gameMap: [
         [
           { state: CellState.UNDISCOVERED, neighborMines: 1, mined: true },
-          { state: CellState.UNDISCOVERED, neighborMines: 2, mined: true },
+          { state: CellState.DISCOVERED, neighborMines: 2, mined: true },
         ],
         [
-          { state: CellState.UNDISCOVERED, neighborMines: 3, mined: true },
-          { state: CellState.UNDISCOVERED, neighborMines: 4, mined: true },
+          { state: CellState.DISCOVERED, neighborMines: 3, mined: true },
+          { state: CellState.DISCOVERED, neighborMines: 4, mined: true },
         ],
       ],
     };
@@ -38,20 +38,25 @@ class App extends Component<Props, State> {
     }
   };
 
+  renderCell = (cell: Cell, x: number, y: number) => {
+    return (
+      <div
+        className={`cell ${cell.state === CellState.DISCOVERED &&
+          'cell-discovered'} ${cell.state === CellState.FLAGGED && 'cell-flagged'}`}
+        onContextMenu={e => this.onClickCell(e, x, y)}
+        onClick={e => this.onClickCell(e, x, y)}
+        key={`${x}-${y}`}
+      >
+        <span className="cell-text">{cell.neighborMines}</span>
+      </div>
+    );
+  };
+
   renderGame = (): ReactNode => (
     <div>
       {this.state.gameMap.map((row, x) => (
         <div className="row" key={x}>
-          {row.map((cell, y) => (
-            <div
-              className="cell"
-              onContextMenu={e => this.onClickCell(e, x, y)}
-              onClick={e => this.onClickCell(e, x, y)}
-              key={`${x}-${y}`}
-            >
-              <span className="cell-text">{cell.neighborMines}</span>
-            </div>
-          ))}
+          {row.map((cell, y) => this.renderCell(cell, x, y))}
         </div>
       ))}
     </div>

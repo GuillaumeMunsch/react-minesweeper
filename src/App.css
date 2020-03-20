@@ -1,3 +1,9 @@
+:root {
+    --undiscovered-cell-bg: #d8d8da;
+    --discovered-cell-bg: #adadae;
+    --cell-border-color: #828283;
+}
+
 .App {
     text-align: center;
     cursor: pointer;
@@ -59,9 +65,9 @@ div {
     display: flex;
     height: 25px;
     width: 25px;
-    background-color: aquamarine;
+    background-color: var(--discovered-cell-bg);
     border-style: outset;
-    border-color: coral;
+    border-color: var(--cell-border-color);
     border-width: 2px;
     color: red;
     justify-content: center;
@@ -70,11 +76,16 @@ div {
 }
 
 .cell-flagged {
-    border-style: outset;
+    /* border-style: outset; */
 }
 
 .cell-discovered {
-    border-style: none;
+    height: 27px;
+    width: 27px;
+    border-style: solid;
+    /* border-color: #e16132; */
+    border-width: 1px;
+    background-color: var(--undiscovered-cell-bg);
 }
 
 a.btn {
