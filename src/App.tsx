@@ -3,6 +3,7 @@ import { Cell, CellState } from 'types/Cell';
 import { GameType } from 'types/GameType';
 import { GameState } from 'types/GameState';
 import flag from 'assets/flag.svg';
+import bomb from 'assets/bomb.svg';
 import './App.css';
 
 interface Props {}
@@ -52,12 +53,11 @@ class App extends Component<Props, State> {
         ...gameMap,
         [...Array(y)].map(() => ({
           mined: false,
-          neighborMines: 0,
+          neighbourMines: 0,
           state: CellState.DISCOVERED,
         })),
       ];
     }
-    console.log('GameMAP initial', gameMap);
     this.setState({
       gameMap,
       mines,
@@ -72,27 +72,32 @@ class App extends Component<Props, State> {
       while (!minePlaced) {
         x = Math.floor(Math.random() * Math.floor(gameMap.length));
         y = Math.floor(Math.random() * Math.floor(gameMap[0].length));
-        console.log(x, y);
         if ((x === pressedX && y === pressedY) || gameMap[x][y].mined) continue;
         gameMap[x][y].mined = true;
         minePlaced = true;
       }
     }
-
-    console.log(gameMap);
-    // for (let i = 0; i < this.state.gameMap.length; i++) {
-    //   for (let j = 0; j < this.state.gameMap[i].length; j++) {
-    //     // console.log(i, j);
-    //     console.log('LA ?');
-    //   }
-    // }
-
+    for (let i = 0; i < this.state.gameMap.length; i++) {
+      for (let j = 0; j < this.state.gameMap[i].length; j++) {
+        let neighbourBombs = 0;
+        if (i - 1 >= 0 && j - 1 >= 0 && gameMap[i - 1][j - 1]?.mined) neighbourBombs++; // Top left
+        if (j - 1 >= 0 && gameMap[i][j - 1]?.mined) neighbourBombs++; // Top
+        if (i + 1 < gameMap.length && j - 1 >= 0 && gameMap[i + 1][j - 1]?.mined) neighbourBombs++; // Top right
+        if (i - 1 >= 0 && gameMap[i - 1][j]?.mined) neighbourBombs++; // Left
+        if (i + 1 < gameMap.length && gameMap[i + 1][j]?.mined) neighbourBombs++; // Right
+        if (i - 1 >= 0 && j + 1 <= gameMap[i].length && gameMap[i - 1][j + 1]?.mined)
+          neighbourBombs++; // Bottom left
+        if (j + 1 <= gameMap[i].length && gameMap[i][j + 1]?.mined) neighbourBombs++; // Bottom
+        if (i + 1 < gameMap.length && j + 1 <= gameMap[i].length && gameMap[i + 1][j + 1]?.mined)
+          neighbourBombs++; // Bottom right
+        gameMap[i][j].neighbourMines = neighbourBombs;
+      }
+    }
     gameMap[pressedX][pressedY].state = CellState.DISCOVERED;
     this.setState({ gameMap, gameState: GameState.RUNNING });
   };
 
   onClickCell = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, x: number, y: number): void => {
-    console.log(x, y);
     if (this.state.gameState !== GameState.LOST)
       if (e.type === 'click') {
         if (this.state.gameState === GameState.INITIAL) {
@@ -126,9 +131,9 @@ class App extends Component<Props, State> {
         return <span></span>;
       case CellState.DISCOVERED: {
         if (cell.mined) {
-          return <span>X</span>;
+          return <img src={bomb} className="App-logo" alt="logo" />;
         }
-        return <span>{cell.neighborMines}</span>;
+        return <span>{cell.neighbourMines}</span>;
       }
       case CellState.FLAGGED:
         return <img src={flag} className="App-logo" alt="logo" />;

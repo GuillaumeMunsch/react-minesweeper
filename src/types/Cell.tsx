@@ -6,6 +6,6 @@ export enum CellState {
 
 export interface Cell {
   state: CellState;
-  neighborMines: number;
+  neighbourMines: number;
   mined: boolean;
 }
