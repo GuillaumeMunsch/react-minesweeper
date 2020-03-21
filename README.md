@@ -16,4 +16,4 @@ To play, you left click on the cells you want to clear and you can right click o
 
 ### Example
 
-![Screenshot](https://raw.githubusercontent.com/GuillaumeMunsch/react-minesweeper/master/public/minesweeper-screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/GuillaumeMunsch/react-minesweeper/master/public/react-minesweeper-icon.png)
