@@ -8,4 +8,5 @@ export interface Cell {
   state: CellState;
   neighbourMines: number;
   mined: boolean;
+  minePressed?: boolean;
 }

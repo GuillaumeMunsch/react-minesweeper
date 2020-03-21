@@ -2,6 +2,7 @@
     --undiscovered-cell-bg: #d8d8da;
     --discovered-cell-bg: #adadae;
     --cell-border-color: #828283;
+    --cell-mine-pressed: #e30e03;
 }
 
 .App {
@@ -9,7 +10,7 @@
     cursor: pointer;
 }
 
-.App-logo {
+.App-icon {
     height: 15px;
 }
 
@@ -79,6 +80,10 @@ div {
     border-style: solid;
     border-width: 1px;
     background-color: var(--undiscovered-cell-bg);
+}
+
+.cell-mine-pressed {
+    background-color: var(--cell-mine-pressed);
 }
 
 a.btn {

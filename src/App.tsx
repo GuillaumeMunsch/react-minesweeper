@@ -54,7 +54,7 @@ class App extends Component<Props, State> {
         [...Array(y)].map(() => ({
           mined: false,
           neighbourMines: 0,
-          state: CellState.DISCOVERED,
+          state: CellState.UNDISCOVERED,
         })),
       ];
     }
@@ -97,17 +97,39 @@ class App extends Component<Props, State> {
     this.setState({ gameMap, gameState: GameState.RUNNING });
   };
 
+  loseGame = (x: number, y: number) => {
+    const gameMap = [...this.state.gameMap.map(row => [...row])];
+    for (let i = 0; i < this.state.gameMap.length; i++) {
+      for (let j = 0; j < this.state.gameMap[i].length; j++) {
+        if (gameMap[i][j].mined && gameMap[i][j].state !== CellState.FLAGGED)
+          gameMap[i][j].state = CellState.DISCOVERED;
+      }
+    }
+    gameMap[x][y].minePressed = true;
+    this.setState({
+      gameMap,
+      gameState: GameState.LOST,
+    });
+  };
+
+  flagCell = (x: number, y: number) => {
+    const gameMap = [...this.state.gameMap.map(row => [...row])];
+    gameMap[x][y].state =
+      gameMap[x][y].state === CellState.FLAGGED ? CellState.UNDISCOVERED : CellState.FLAGGED;
+    this.setState({ gameMap });
+  };
+
   onClickCell = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, x: number, y: number): void => {
     if (this.state.gameState !== GameState.LOST)
       if (e.type === 'click') {
         if (this.state.gameState === GameState.INITIAL) {
-          console.log('Go ?');
           return this.startGame(x, y);
+        } else if (this.state.gameMap[x][y].mined) {
+          this.loseGame(x, y);
         }
-        // Manage normal click events
         console.log('Left click');
-      } else if (e.type === 'contextmenu') {
-        console.log('Right click');
+      } else if (e.type === 'contextmenu' && this.state.gameState === GameState.RUNNING) {
+        this.flagCell(x, y);
       }
   };
 
@@ -115,7 +137,8 @@ class App extends Component<Props, State> {
     return (
       <div
         className={`cell ${cell.state === CellState.DISCOVERED &&
-          'cell-discovered'} ${cell.state === CellState.FLAGGED && 'cell-flagged'}`}
+          'cell-discovered'} ${cell.state === CellState.FLAGGED &&
+          'cell-flagged'} ${cell.minePressed && 'cell-mine-pressed'}`}
         onContextMenu={e => this.onClickCell(e, x, y)}
         onClick={e => this.onClickCell(e, x, y)}
         key={`${x}-${y}`}
@@ -131,12 +154,12 @@ class App extends Component<Props, State> {
         return <span></span>;
       case CellState.DISCOVERED: {
         if (cell.mined) {
-          return <img src={bomb} className="App-logo" alt="logo" />;
+          return <img src={bomb} className="App-icon" alt="bomb" />;
         }
         return <span>{cell.neighbourMines}</span>;
       }
       case CellState.FLAGGED:
-        return <img src={flag} className="App-logo" alt="logo" />;
+        return <img src={flag} className="App-icon" alt="flag" />;
     }
   };
 
