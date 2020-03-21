@@ -116,7 +116,7 @@ div {
     background-color: var(--cell-mine-pressed);
 }
 
-a.btn {
+div.btn {
     cursor: pointer;
     display: inline-block;
     padding: 0.35em 1.2em;
@@ -133,12 +133,12 @@ a.btn {
     font-size: large;
 }
 
-a.btn:hover {
+div.btn:hover {
     color: white;
     background-color: #282c34;
 }
 
-a.replay {
+div.replay {
     cursor: pointer;
     display: inline-block;
     padding: 0.35em 1.2em;
@@ -156,7 +156,7 @@ a.replay {
     background-color: #282c34;
 }
 
-a.replay:hover {
+div.replay:hover {
     color: white;
     border: 0.1em solid white;
 }

@@ -188,27 +188,35 @@ class App extends Component<Props, State> {
       if (e.type === 'click') {
         if (this.state.gameState === GameState.INITIAL) {
           return this.startGame(x, y);
-        } else if (this.state.gameMap[x][y].mined) {
+        } else if (
+          this.state.gameMap[x][y].mined &&
+          this.state.gameMap[x][y].state !== CellState.FLAGGED
+        ) {
           return this.loseGame(x, y);
+        } else if (this.state.gameMap[x][y].state !== CellState.FLAGGED) {
+          const gameMap = this.clearCell(this.state.gameMap, x, y, true);
+          const remainingCells = gameMap.reduce(
+            (count, row, i) =>
+              count +
+              row.reduce(
+                (rowCount, cell) =>
+                  cell.state === CellState.UNDISCOVERED && !cell.mined ? rowCount + 1 : rowCount,
+                0
+              ),
+            0
+          );
+          this.setState({
+            gameMap,
+            remainingCells,
+            gameState: remainingCells === 0 ? GameState.FINISHED : this.state.gameState,
+          });
         }
-        const gameMap = this.clearCell(this.state.gameMap, x, y, true);
-        const remainingCells = gameMap.reduce(
-          (count, row, i) =>
-            count +
-            row.reduce(
-              (rowCount, cell) =>
-                cell.state === CellState.UNDISCOVERED && !cell.mined ? rowCount + 1 : rowCount,
-              0
-            ),
-          0
-        );
-        this.setState({
-          gameMap,
-          remainingCells,
-          gameState: remainingCells === 0 ? GameState.FINISHED : this.state.gameState,
-        });
-      } else if (e.type === 'contextmenu' && this.state.gameState === GameState.RUNNING) {
-        this.flagCell(x, y);
+      } else if (
+        e.type === 'contextmenu' &&
+        this.state.gameState === GameState.RUNNING &&
+        this.state.gameMap[x][y].state !== CellState.DISCOVERED
+      ) {
+        return this.flagCell(x, y);
       }
   };
 
@@ -260,8 +268,7 @@ class App extends Component<Props, State> {
     return (
       <div className="App">
         <div className="App-header">
-          <a
-            href="!#"
+          <div
             className="btn"
             onClick={() =>
               this.setState(
@@ -271,9 +278,8 @@ class App extends Component<Props, State> {
             }
           >
             SMALL
-          </a>
-          <a
-            href="!#"
+          </div>
+          <div
             className="btn"
             onClick={() =>
               this.setState(
@@ -283,9 +289,8 @@ class App extends Component<Props, State> {
             }
           >
             MEDIUM
-          </a>
-          <a
-            href="!#"
+          </div>
+          <div
             className="btn"
             onClick={() =>
               this.setState(
@@ -295,7 +300,7 @@ class App extends Component<Props, State> {
             }
           >
             BIG
-          </a>
+          </div>
         </div>
         <header className="App-game">
           <div>{this.renderGame()}</div>
@@ -307,13 +312,12 @@ class App extends Component<Props, State> {
                 alt="game-result"
               />
               <div className="result-text">{this.state.remainingCells === 0 ? 'Win' : 'Lost'}</div>
-              <a
-                href="!#"
+              <div
                 className="replay"
                 onClick={() => this.setState({ gameState: GameState.INITIAL }, this.createGame)}
               >
                 Replay ?
-              </a>
+              </div>
             </div>
           )}
         </header>
