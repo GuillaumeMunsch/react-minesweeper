@@ -1,5 +1,5 @@
 export enum GameState {
     INITIAL,
     RUNNING,
-    LOST
+    FINISHED
 }

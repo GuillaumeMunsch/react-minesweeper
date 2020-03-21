@@ -4,6 +4,8 @@ import { GameType } from 'types/GameType';
 import { GameState } from 'types/GameState';
 import flag from 'assets/flag.svg';
 import bomb from 'assets/bomb.svg';
+import smiley from 'assets/smiley.svg';
+import sad from 'assets/sad.svg';
 import { isCellClearable } from 'helpers';
 import './App.css';
 
@@ -14,6 +16,7 @@ interface State {
   gameMap: Cell[][];
   mines: number;
   gameState: GameState;
+  remainingCells: number;
 }
 
 class App extends Component<Props, State> {
@@ -24,6 +27,7 @@ class App extends Component<Props, State> {
       gameMap: [],
       mines: 10,
       gameState: GameState.INITIAL,
+      remainingCells: -1,
     };
   }
 
@@ -62,6 +66,7 @@ class App extends Component<Props, State> {
     this.setState({
       gameMap,
       mines,
+      remainingCells: x * y - mines,
     });
   };
 
@@ -109,7 +114,7 @@ class App extends Component<Props, State> {
     gameMap[x][y].minePressed = true;
     this.setState({
       gameMap,
-      gameState: GameState.LOST,
+      gameState: GameState.FINISHED,
     });
   };
 
@@ -123,8 +128,6 @@ class App extends Component<Props, State> {
   clearCell = (propsMap: Cell[][], x: number, y: number, pressed = false): Cell[][] => {
     let gameMap = [...propsMap.map(row => [...row])];
     gameMap[x][y].state = CellState.DISCOVERED;
-    console.log('Cell', gameMap[x][y]);
-
     if (gameMap[x][y].neighbourMines === 0) {
       if (x - 1 >= 0 && y - 1 >= 0 && gameMap[x - 1][y - 1]?.state === CellState.UNDISCOVERED)
         gameMap = this.clearCell(gameMap, x - 1, y - 1); // Top left
@@ -181,15 +184,31 @@ class App extends Component<Props, State> {
   };
 
   onClickCell = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, x: number, y: number): void => {
-    if (this.state.gameState !== GameState.LOST)
+    if (this.state.gameState !== GameState.FINISHED)
       if (e.type === 'click') {
         if (this.state.gameState === GameState.INITIAL) {
           return this.startGame(x, y);
         } else if (this.state.gameMap[x][y].mined) {
-          this.loseGame(x, y);
+          return this.loseGame(x, y);
         }
         const gameMap = this.clearCell(this.state.gameMap, x, y, true);
-        this.setState({ gameMap });
+        const remainingCells = gameMap.reduce((count, row, i) => {
+          console.log('Row', row);
+          return (
+            count +
+            row.reduce(
+              (rowCount, cell) =>
+                cell.state === CellState.UNDISCOVERED && !cell.mined ? rowCount + 1 : rowCount,
+              0
+            )
+          );
+        }, 0);
+        console.log('Remaining cells', remainingCells);
+        this.setState({
+          gameMap,
+          remainingCells,
+          gameState: remainingCells === 0 ? GameState.FINISHED : this.state.gameState,
+        });
       } else if (e.type === 'contextmenu' && this.state.gameState === GameState.RUNNING) {
         this.flagCell(x, y);
       }
@@ -282,6 +301,12 @@ class App extends Component<Props, State> {
         </div>
         <header className="App-game">
           <div>{this.renderGame()}</div>
+          {this.state.gameState === GameState.FINISHED && (
+            <div className="end">
+              {this.state.remainingCells === 0 && 'Win'}
+              {this.state.remainingCells > 0 && 'Lost'}
+            </div>
+          )}
         </header>
       </div>
     );
