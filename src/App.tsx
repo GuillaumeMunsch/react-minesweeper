@@ -4,7 +4,7 @@ import { GameType } from 'types/GameType';
 import { GameState } from 'types/GameState';
 import flag from 'assets/flag.svg';
 import bomb from 'assets/bomb.svg';
-import smiley from 'assets/smiley.svg';
+import smile from 'assets/smile.svg';
 import sad from 'assets/sad.svg';
 import { isCellClearable } from 'helpers';
 import './App.css';
@@ -192,18 +192,16 @@ class App extends Component<Props, State> {
           return this.loseGame(x, y);
         }
         const gameMap = this.clearCell(this.state.gameMap, x, y, true);
-        const remainingCells = gameMap.reduce((count, row, i) => {
-          console.log('Row', row);
-          return (
+        const remainingCells = gameMap.reduce(
+          (count, row, i) =>
             count +
             row.reduce(
               (rowCount, cell) =>
                 cell.state === CellState.UNDISCOVERED && !cell.mined ? rowCount + 1 : rowCount,
               0
-            )
-          );
-        }, 0);
-        console.log('Remaining cells', remainingCells);
+            ),
+          0
+        );
         this.setState({
           gameMap,
           remainingCells,
@@ -302,9 +300,20 @@ class App extends Component<Props, State> {
         <header className="App-game">
           <div>{this.renderGame()}</div>
           {this.state.gameState === GameState.FINISHED && (
-            <div className="end">
-              {this.state.remainingCells === 0 && 'Win'}
-              {this.state.remainingCells > 0 && 'Lost'}
+            <div className={`end ${this.state.remainingCells === 0 ? 'won' : 'lost'}`}>
+              <img
+                src={this.state.remainingCells === 0 ? smile : sad}
+                className="App-result-icon"
+                alt="game-result"
+              />
+              <div className="result-text">{this.state.remainingCells === 0 ? 'Win' : 'Lost'}</div>
+              <a
+                href="!#"
+                className="replay"
+                onClick={() => this.setState({ gameState: GameState.INITIAL }, this.createGame)}
+              >
+                Replay ?
+              </a>
             </div>
           )}
         </header>
