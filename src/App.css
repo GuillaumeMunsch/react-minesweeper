@@ -114,3 +114,13 @@ a.btn:hover {
         margin: 0.4em auto;
     }
 }
+
+span.cell-value { font-weight: 500; }
+span.cell-value-1 { color: #0000FD }
+span.cell-value-2 { color: #007E00 }
+span.cell-value-3 { color: #FE0000 }
+span.cell-value-4 { color: #000082 }
+span.cell-value-5 { color: #7F0300 }
+span.cell-value-6 { color: #008080 }
+span.cell-value-7 { color: #000000 }
+span.cell-value-8 { color: #808080 }

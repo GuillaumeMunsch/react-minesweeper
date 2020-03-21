@@ -4,6 +4,7 @@ import { GameType } from 'types/GameType';
 import { GameState } from 'types/GameState';
 import flag from 'assets/flag.svg';
 import bomb from 'assets/bomb.svg';
+import { isCellClearable } from 'helpers';
 import './App.css';
 
 interface Props {}
@@ -119,9 +120,11 @@ class App extends Component<Props, State> {
     this.setState({ gameMap });
   };
 
-  clearCell = (propsMap: Cell[][], x: number, y: number): Cell[][] => {
+  clearCell = (propsMap: Cell[][], x: number, y: number, pressed = false): Cell[][] => {
     let gameMap = [...propsMap.map(row => [...row])];
     gameMap[x][y].state = CellState.DISCOVERED;
+    console.log('Cell', gameMap[x][y]);
+
     if (gameMap[x][y].neighbourMines === 0) {
       if (x - 1 >= 0 && y - 1 >= 0 && gameMap[x - 1][y - 1]?.state === CellState.UNDISCOVERED)
         gameMap = this.clearCell(gameMap, x - 1, y - 1); // Top left
@@ -151,8 +154,29 @@ class App extends Component<Props, State> {
         gameMap[x + 1][y + 1]?.state === CellState.UNDISCOVERED
       )
         gameMap = this.clearCell(gameMap, x + 1, y + 1); // Bottom right
+      return gameMap;
     }
-    // this.setState({ gameMap });
+
+    if (x - 1 >= 0 && y - 1 >= 0 && isCellClearable(gameMap, x - 1, y - 1))
+      gameMap = this.clearCell(gameMap, x - 1, y - 1); // Top left
+    if (y - 1 >= 0 && isCellClearable(gameMap, x, y - 1))
+      gameMap = this.clearCell(gameMap, x, y - 1); // Top
+    if (x + 1 < gameMap.length && y - 1 >= 0 && isCellClearable(gameMap, x + 1, y - 1))
+      gameMap = this.clearCell(gameMap, x + 1, y - 1); // Top right
+    if (x - 1 >= 0 && isCellClearable(gameMap, x - 1, y))
+      gameMap = this.clearCell(gameMap, x - 1, y); // Left
+    if (x + 1 < gameMap.length && isCellClearable(gameMap, x + 1, y))
+      gameMap = this.clearCell(gameMap, x + 1, y); // Right
+    if (x - 1 >= 0 && y + 1 <= gameMap[x].length && isCellClearable(gameMap, x - 1, y + 1))
+      gameMap = this.clearCell(gameMap, x - 1, y + 1); // Bottom left
+    if (y + 1 <= gameMap[x].length && isCellClearable(gameMap, x, y + 1))
+      gameMap = this.clearCell(gameMap, x, y + 1); // Bottom
+    if (
+      x + 1 < gameMap.length &&
+      y + 1 <= gameMap[x].length &&
+      isCellClearable(gameMap, x + 1, y + 1)
+    )
+      gameMap = this.clearCell(gameMap, x + 1, y + 1); // Bottom right
     return gameMap;
   };
 
@@ -164,7 +188,7 @@ class App extends Component<Props, State> {
         } else if (this.state.gameMap[x][y].mined) {
           this.loseGame(x, y);
         }
-        const gameMap = this.clearCell(this.state.gameMap, x, y);
+        const gameMap = this.clearCell(this.state.gameMap, x, y, true);
         this.setState({ gameMap });
       } else if (e.type === 'contextmenu' && this.state.gameState === GameState.RUNNING) {
         this.flagCell(x, y);
@@ -194,7 +218,11 @@ class App extends Component<Props, State> {
         if (cell.mined) {
           return <img src={bomb} className="App-icon" alt="bomb" />;
         }
-        return <span>{cell.neighbourMines}</span>;
+        return (
+          <span className={`cell-value cell-value-${cell.neighbourMines}`}>
+            {cell.neighbourMines > 0 && cell.neighbourMines}
+          </span>
+        );
       }
       case CellState.FLAGGED:
         return <img src={flag} className="App-icon" alt="flag" />;
