@@ -4,7 +4,6 @@
         "browser": true
     },
     "extends": [
-        "airbnb",
         "plugin:prettier/recommended"
     ],
     "plugins": [

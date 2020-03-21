@@ -16,6 +16,7 @@
 .App-header {
     display: flex;
     height: 5vh;
+    min-height: 50px;
     justify-content: center;
     align-items: center;
 }

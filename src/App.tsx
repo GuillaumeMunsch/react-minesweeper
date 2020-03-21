@@ -1,42 +1,109 @@
 import React, { Component, ReactNode } from 'react';
 import { Cell, CellState } from 'types/Cell';
 import { GameType } from 'types/GameType';
+import { GameState } from 'types/GameState';
 import flag from 'assets/flag.svg';
 import './App.css';
 
 interface Props {}
 
 interface State {
-  gameSize: GameType;
+  gameType: GameType;
   gameMap: Cell[][];
+  mines: number;
+  gameState: GameState;
 }
 
 class App extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      gameSize: GameType.SMALL,
-      gameMap: [
-        [
-          { state: CellState.UNDISCOVERED, neighborMines: 1, mined: true },
-          { state: CellState.DISCOVERED, neighborMines: 2, mined: true },
-        ],
-        [
-          { state: CellState.DISCOVERED, neighborMines: 3, mined: true },
-          { state: CellState.FLAGGED, neighborMines: 4, mined: true },
-        ],
-      ],
+      gameType: GameType.SMALL,
+      gameMap: [],
+      mines: 10,
+      gameState: GameState.INITIAL,
     };
   }
 
+  componentWillMount() {
+    this.createGame();
+  }
+
+  createGame = () => {
+    let x: number, y: number, mines: number;
+    switch (this.state.gameType) {
+      case GameType.SMALL:
+        x = y = 10;
+        mines = 10;
+        break;
+      case GameType.MEDIUM:
+        x = y = 16;
+        mines = 40;
+        break;
+      default:
+        x = 16;
+        y = 30;
+        mines = 99;
+        break;
+    }
+    let gameMap: Cell[][] = [];
+    for (let i = 0; i < x; i++) {
+      gameMap = [
+        ...gameMap,
+        [...Array(y)].map(() => ({
+          mined: false,
+          neighborMines: 0,
+          state: CellState.DISCOVERED,
+        })),
+      ];
+    }
+    console.log('GameMAP initial', gameMap);
+    this.setState({
+      gameMap,
+      mines,
+    });
+  };
+
+  startGame = (pressedX: number, pressedY: number) => {
+    const gameMap = [...this.state.gameMap.map(row => [...row])];
+    let x: number, y: number;
+    for (let { mines } = this.state; mines > 0; mines--) {
+      let minePlaced = false;
+      while (!minePlaced) {
+        x = Math.floor(Math.random() * Math.floor(gameMap.length));
+        y = Math.floor(Math.random() * Math.floor(gameMap[0].length));
+        console.log(x, y);
+        if ((x === pressedX && y === pressedY) || gameMap[x][y].mined) continue;
+        gameMap[x][y].mined = true;
+        minePlaced = true;
+      }
+    }
+
+    console.log(gameMap);
+    // for (let i = 0; i < this.state.gameMap.length; i++) {
+    //   for (let j = 0; j < this.state.gameMap[i].length; j++) {
+    //     // console.log(i, j);
+    //     console.log('LA ?');
+    //   }
+    // }
+
+    gameMap[pressedX][pressedY].state = CellState.DISCOVERED;
+    this.setState({ gameMap, gameState: GameState.RUNNING });
+  };
+
   onClickCell = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, x: number, y: number): void => {
     console.log(x, y);
-    if (e.type === 'click') {
-      console.log('Left click');
-    } else if (e.type === 'contextmenu') {
-      console.log('Right click');
-      e.stopPropagation();
-    }
+    if (this.state.gameState !== GameState.LOST)
+      if (e.type === 'click') {
+        if (this.state.gameState === GameState.INITIAL) {
+          console.log('Go ?');
+          return this.startGame(x, y);
+        }
+        // Manage normal click events
+        console.log('Left click');
+      } else if (e.type === 'contextmenu') {
+        console.log('Right click');
+      }
   };
 
   renderCell = (cell: Cell, x: number, y: number) => {
@@ -54,7 +121,18 @@ class App extends Component<Props, State> {
   };
 
   renderCellContent = (cell: Cell) => {
-    return <img src={flag} className="App-logo" alt="logo" />;
+    switch (cell.state) {
+      case CellState.UNDISCOVERED:
+        return <span></span>;
+      case CellState.DISCOVERED: {
+        if (cell.mined) {
+          return <span>X</span>;
+        }
+        return <span>{cell.neighborMines}</span>;
+      }
+      case CellState.FLAGGED:
+        return <img src={flag} className="App-logo" alt="logo" />;
+    }
   };
 
   renderGame = (): ReactNode => (
@@ -71,9 +149,42 @@ class App extends Component<Props, State> {
     return (
       <div className="App">
         <div className="App-header">
-          <a className="btn">SMALL</a>
-          <a className="btn">MEDIUM</a>
-          <a className="btn">BIG</a>
+          <a
+            href="!#"
+            className="btn"
+            onClick={() =>
+              this.setState(
+                { gameType: GameType.SMALL, gameState: GameState.INITIAL },
+                this.createGame
+              )
+            }
+          >
+            SMALL
+          </a>
+          <a
+            href="!#"
+            className="btn"
+            onClick={() =>
+              this.setState(
+                { gameType: GameType.MEDIUM, gameState: GameState.INITIAL },
+                this.createGame
+              )
+            }
+          >
+            MEDIUM
+          </a>
+          <a
+            href="!#"
+            className="btn"
+            onClick={() =>
+              this.setState(
+                { gameType: GameType.BIG, gameState: GameState.INITIAL },
+                this.createGame
+              )
+            }
+          >
+            BIG
+          </a>
         </div>
         <header className="App-game">
           <div>{this.renderGame()}</div>
