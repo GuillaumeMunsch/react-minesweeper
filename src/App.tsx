@@ -65,7 +65,7 @@ class App extends Component<Props, State> {
   };
 
   startGame = (pressedX: number, pressedY: number) => {
-    const gameMap = [...this.state.gameMap.map(row => [...row])];
+    let gameMap = [...this.state.gameMap.map(row => [...row])];
     let x: number, y: number;
     for (let { mines } = this.state; mines > 0; mines--) {
       let minePlaced = false;
@@ -93,7 +93,7 @@ class App extends Component<Props, State> {
         gameMap[i][j].neighbourMines = neighbourBombs;
       }
     }
-    gameMap[pressedX][pressedY].state = CellState.DISCOVERED;
+    gameMap = this.clearCell(gameMap, pressedX, pressedY);
     this.setState({ gameMap, gameState: GameState.RUNNING });
   };
 
@@ -119,6 +119,43 @@ class App extends Component<Props, State> {
     this.setState({ gameMap });
   };
 
+  clearCell = (propsMap: Cell[][], x: number, y: number): Cell[][] => {
+    let gameMap = [...propsMap.map(row => [...row])];
+    gameMap[x][y].state = CellState.DISCOVERED;
+    if (gameMap[x][y].neighbourMines === 0) {
+      if (x - 1 >= 0 && y - 1 >= 0 && gameMap[x - 1][y - 1]?.state === CellState.UNDISCOVERED)
+        gameMap = this.clearCell(gameMap, x - 1, y - 1); // Top left
+      if (y - 1 >= 0 && gameMap[x][y - 1]?.state === CellState.UNDISCOVERED)
+        gameMap = this.clearCell(gameMap, x, y - 1); // Top
+      if (
+        x + 1 < gameMap.length &&
+        y - 1 >= 0 &&
+        gameMap[x + 1][y - 1]?.state === CellState.UNDISCOVERED
+      )
+        gameMap = this.clearCell(gameMap, x + 1, y - 1); // Top right
+      if (x - 1 >= 0 && gameMap[x - 1][y]?.state === CellState.UNDISCOVERED)
+        gameMap = this.clearCell(gameMap, x - 1, y); // Left
+      if (x + 1 < gameMap.length && gameMap[x + 1][y]?.state === CellState.UNDISCOVERED)
+        gameMap = this.clearCell(gameMap, x + 1, y); // Right
+      if (
+        x - 1 >= 0 &&
+        y + 1 <= gameMap[x].length &&
+        gameMap[x - 1][y + 1]?.state === CellState.UNDISCOVERED
+      )
+        gameMap = this.clearCell(gameMap, x - 1, y + 1); // Bottom left
+      if (y + 1 <= gameMap[x].length && gameMap[x][y + 1]?.state === CellState.UNDISCOVERED)
+        gameMap = this.clearCell(gameMap, x, y + 1); // Bottom
+      if (
+        x + 1 < gameMap.length &&
+        y + 1 <= gameMap[x].length &&
+        gameMap[x + 1][y + 1]?.state === CellState.UNDISCOVERED
+      )
+        gameMap = this.clearCell(gameMap, x + 1, y + 1); // Bottom right
+    }
+    // this.setState({ gameMap });
+    return gameMap;
+  };
+
   onClickCell = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, x: number, y: number): void => {
     if (this.state.gameState !== GameState.LOST)
       if (e.type === 'click') {
@@ -127,7 +164,8 @@ class App extends Component<Props, State> {
         } else if (this.state.gameMap[x][y].mined) {
           this.loseGame(x, y);
         }
-        console.log('Left click');
+        const gameMap = this.clearCell(this.state.gameMap, x, y);
+        this.setState({ gameMap });
       } else if (e.type === 'contextmenu' && this.state.gameState === GameState.RUNNING) {
         this.flagCell(x, y);
       }
