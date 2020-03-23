@@ -6,7 +6,6 @@ import flag from 'assets/flag.svg';
 import bomb from 'assets/bomb.svg';
 import smile from 'assets/smile.svg';
 import sad from 'assets/sad.svg';
-import { isCellClearable } from 'helpers';
 import './App.css';
 
 interface Props {}
@@ -159,27 +158,6 @@ class App extends Component<Props, State> {
         gameMap = this.clearCell(gameMap, x + 1, y + 1); // Bottom right
       return gameMap;
     }
-
-    if (x - 1 >= 0 && y - 1 >= 0 && isCellClearable(gameMap, x - 1, y - 1))
-      gameMap = this.clearCell(gameMap, x - 1, y - 1); // Top left
-    if (y - 1 >= 0 && isCellClearable(gameMap, x, y - 1))
-      gameMap = this.clearCell(gameMap, x, y - 1); // Top
-    if (x + 1 < gameMap.length && y - 1 >= 0 && isCellClearable(gameMap, x + 1, y - 1))
-      gameMap = this.clearCell(gameMap, x + 1, y - 1); // Top right
-    if (x - 1 >= 0 && isCellClearable(gameMap, x - 1, y))
-      gameMap = this.clearCell(gameMap, x - 1, y); // Left
-    if (x + 1 < gameMap.length && isCellClearable(gameMap, x + 1, y))
-      gameMap = this.clearCell(gameMap, x + 1, y); // Right
-    if (x - 1 >= 0 && y + 1 <= gameMap[x].length && isCellClearable(gameMap, x - 1, y + 1))
-      gameMap = this.clearCell(gameMap, x - 1, y + 1); // Bottom left
-    if (y + 1 <= gameMap[x].length && isCellClearable(gameMap, x, y + 1))
-      gameMap = this.clearCell(gameMap, x, y + 1); // Bottom
-    if (
-      x + 1 < gameMap.length &&
-      y + 1 <= gameMap[x].length &&
-      isCellClearable(gameMap, x + 1, y + 1)
-    )
-      gameMap = this.clearCell(gameMap, x + 1, y + 1); // Bottom right
     return gameMap;
   };
 
