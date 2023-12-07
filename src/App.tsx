@@ -1,12 +1,12 @@
-import React, { Component, ReactNode } from 'react';
-import { Cell, CellState } from 'types/Cell';
-import { GameType } from 'types/GameType';
-import { GameState } from 'types/GameState';
-import flag from 'assets/flag.svg';
-import bomb from 'assets/bomb.svg';
-import smile from 'assets/smile.svg';
-import sad from 'assets/sad.svg';
-import './App.css';
+import React, { Component, ReactNode } from "react";
+import { Cell, CellState } from "./types/Cell";
+import { GameType } from "./types/GameType";
+import { GameState } from "./types/GameState";
+import flag from "./assets/flag.svg";
+import bomb from "./assets/bomb.svg";
+import smile from "./assets/smile.svg";
+import sad from "./assets/sad.svg";
+import "./App.css";
 
 interface Props {}
 
@@ -70,7 +70,7 @@ class App extends Component<Props, State> {
   };
 
   startGame = (pressedX: number, pressedY: number) => {
-    let gameMap = [...this.state.gameMap.map(row => [...row])];
+    let gameMap = [...this.state.gameMap.map((row) => [...row])];
     let x: number, y: number;
     for (let { mines } = this.state; mines > 0; mines--) {
       let minePlaced = false;
@@ -85,15 +85,31 @@ class App extends Component<Props, State> {
     for (let i = 0; i < this.state.gameMap.length; i++) {
       for (let j = 0; j < this.state.gameMap[i].length; j++) {
         let neighbourBombs = 0;
-        if (i - 1 >= 0 && j - 1 >= 0 && gameMap[i - 1][j - 1]?.mined) neighbourBombs++; // Top left
+        if (i - 1 >= 0 && j - 1 >= 0 && gameMap[i - 1][j - 1]?.mined)
+          neighbourBombs++; // Top left
         if (j - 1 >= 0 && gameMap[i][j - 1]?.mined) neighbourBombs++; // Top
-        if (i + 1 < gameMap.length && j - 1 >= 0 && gameMap[i + 1][j - 1]?.mined) neighbourBombs++; // Top right
+        if (
+          i + 1 < gameMap.length &&
+          j - 1 >= 0 &&
+          gameMap[i + 1][j - 1]?.mined
+        )
+          neighbourBombs++; // Top right
         if (i - 1 >= 0 && gameMap[i - 1][j]?.mined) neighbourBombs++; // Left
-        if (i + 1 < gameMap.length && gameMap[i + 1][j]?.mined) neighbourBombs++; // Right
-        if (i - 1 >= 0 && j + 1 <= gameMap[i].length && gameMap[i - 1][j + 1]?.mined)
+        if (i + 1 < gameMap.length && gameMap[i + 1][j]?.mined)
+          neighbourBombs++; // Right
+        if (
+          i - 1 >= 0 &&
+          j + 1 <= gameMap[i].length &&
+          gameMap[i - 1][j + 1]?.mined
+        )
           neighbourBombs++; // Bottom left
-        if (j + 1 <= gameMap[i].length && gameMap[i][j + 1]?.mined) neighbourBombs++; // Bottom
-        if (i + 1 < gameMap.length && j + 1 <= gameMap[i].length && gameMap[i + 1][j + 1]?.mined)
+        if (j + 1 <= gameMap[i].length && gameMap[i][j + 1]?.mined)
+          neighbourBombs++; // Bottom
+        if (
+          i + 1 < gameMap.length &&
+          j + 1 <= gameMap[i].length &&
+          gameMap[i + 1][j + 1]?.mined
+        )
           neighbourBombs++; // Bottom right
         gameMap[i][j].neighbourMines = neighbourBombs;
       }
@@ -103,7 +119,7 @@ class App extends Component<Props, State> {
   };
 
   loseGame = (x: number, y: number) => {
-    const gameMap = [...this.state.gameMap.map(row => [...row])];
+    const gameMap = [...this.state.gameMap.map((row) => [...row])];
     for (let i = 0; i < this.state.gameMap.length; i++) {
       for (let j = 0; j < this.state.gameMap[i].length; j++) {
         if (gameMap[i][j].mined && gameMap[i][j].state !== CellState.FLAGGED)
@@ -118,17 +134,27 @@ class App extends Component<Props, State> {
   };
 
   flagCell = (x: number, y: number) => {
-    const gameMap = [...this.state.gameMap.map(row => [...row])];
+    const gameMap = [...this.state.gameMap.map((row) => [...row])];
     gameMap[x][y].state =
-      gameMap[x][y].state === CellState.FLAGGED ? CellState.UNDISCOVERED : CellState.FLAGGED;
+      gameMap[x][y].state === CellState.FLAGGED
+        ? CellState.UNDISCOVERED
+        : CellState.FLAGGED;
     this.setState({ gameMap });
   };
 
-  clearCell = (propsMap: Cell[][], x: number, y: number, pressed = false): Cell[][] => {
-    let gameMap = [...propsMap.map(row => [...row])];
+  clearCell = (
+    propsMap: Cell[][],
+    x: number,
+    y: number,
+  ): Cell[][] => {
+    let gameMap = [...propsMap.map((row) => [...row])];
     gameMap[x][y].state = CellState.DISCOVERED;
     if (gameMap[x][y].neighbourMines === 0) {
-      if (x - 1 >= 0 && y - 1 >= 0 && gameMap[x - 1][y - 1]?.state === CellState.UNDISCOVERED)
+      if (
+        x - 1 >= 0 &&
+        y - 1 >= 0 &&
+        gameMap[x - 1][y - 1]?.state === CellState.UNDISCOVERED
+      )
         gameMap = this.clearCell(gameMap, x - 1, y - 1); // Top left
       if (y - 1 >= 0 && gameMap[x][y - 1]?.state === CellState.UNDISCOVERED)
         gameMap = this.clearCell(gameMap, x, y - 1); // Top
@@ -140,7 +166,10 @@ class App extends Component<Props, State> {
         gameMap = this.clearCell(gameMap, x + 1, y - 1); // Top right
       if (x - 1 >= 0 && gameMap[x - 1][y]?.state === CellState.UNDISCOVERED)
         gameMap = this.clearCell(gameMap, x - 1, y); // Left
-      if (x + 1 < gameMap.length && gameMap[x + 1][y]?.state === CellState.UNDISCOVERED)
+      if (
+        x + 1 < gameMap.length &&
+        gameMap[x + 1][y]?.state === CellState.UNDISCOVERED
+      )
         gameMap = this.clearCell(gameMap, x + 1, y); // Right
       if (
         x - 1 >= 0 &&
@@ -148,7 +177,10 @@ class App extends Component<Props, State> {
         gameMap[x - 1][y + 1]?.state === CellState.UNDISCOVERED
       )
         gameMap = this.clearCell(gameMap, x - 1, y + 1); // Bottom left
-      if (y + 1 <= gameMap[x].length && gameMap[x][y + 1]?.state === CellState.UNDISCOVERED)
+      if (
+        y + 1 <= gameMap[x].length &&
+        gameMap[x][y + 1]?.state === CellState.UNDISCOVERED
+      )
         gameMap = this.clearCell(gameMap, x, y + 1); // Bottom
       if (
         x + 1 < gameMap.length &&
@@ -161,9 +193,13 @@ class App extends Component<Props, State> {
     return gameMap;
   };
 
-  onClickCell = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, x: number, y: number): void => {
+  onClickCell = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    x: number,
+    y: number
+  ): void => {
     if (this.state.gameState !== GameState.FINISHED)
-      if (e.type === 'click') {
+      if (e.type === "click") {
         if (this.state.gameState === GameState.INITIAL) {
           return this.startGame(x, y);
         } else if (
@@ -172,13 +208,15 @@ class App extends Component<Props, State> {
         ) {
           return this.loseGame(x, y);
         } else if (this.state.gameMap[x][y].state !== CellState.FLAGGED) {
-          const gameMap = this.clearCell(this.state.gameMap, x, y, true);
+          const gameMap = this.clearCell(this.state.gameMap, x, y);
           const remainingCells = gameMap.reduce(
-            (count, row, i) =>
+            (count, row) =>
               count +
               row.reduce(
                 (rowCount, cell) =>
-                  cell.state === CellState.UNDISCOVERED && !cell.mined ? rowCount + 1 : rowCount,
+                  cell.state === CellState.UNDISCOVERED && !cell.mined
+                    ? rowCount + 1
+                    : rowCount,
                 0
               ),
             0
@@ -186,11 +224,12 @@ class App extends Component<Props, State> {
           this.setState({
             gameMap,
             remainingCells,
-            gameState: remainingCells === 0 ? GameState.FINISHED : this.state.gameState,
+            gameState:
+              remainingCells === 0 ? GameState.FINISHED : this.state.gameState,
           });
         }
       } else if (
-        e.type === 'contextmenu' &&
+        e.type === "contextmenu" &&
         this.state.gameState === GameState.RUNNING &&
         this.state.gameMap[x][y].state !== CellState.DISCOVERED
       ) {
@@ -201,11 +240,13 @@ class App extends Component<Props, State> {
   renderCell = (cell: Cell, x: number, y: number) => {
     return (
       <div
-        className={`cell ${cell.state === CellState.DISCOVERED &&
-          'cell-discovered'} ${cell.state === CellState.FLAGGED &&
-          'cell-flagged'} ${cell.minePressed && 'cell-mine-pressed'}`}
-        onContextMenu={e => this.onClickCell(e, x, y)}
-        onClick={e => this.onClickCell(e, x, y)}
+        className={`cell ${
+          cell.state === CellState.DISCOVERED && "cell-discovered"
+        } ${cell.state === CellState.FLAGGED && "cell-flagged"} ${
+          cell.minePressed && "cell-mine-pressed"
+        }`}
+        onContextMenu={(e) => this.onClickCell(e, x, y)}
+        onClick={(e) => this.onClickCell(e, x, y)}
         key={`${x}-${y}`}
       >
         <span className="cell-text">{this.renderCellContent(cell)}</span>
@@ -283,16 +324,27 @@ class App extends Component<Props, State> {
         <header className="App-game">
           <div>{this.renderGame()}</div>
           {this.state.gameState === GameState.FINISHED && (
-            <div className={`end ${this.state.remainingCells === 0 ? 'won' : 'lost'}`}>
+            <div
+              className={`end ${
+                this.state.remainingCells === 0 ? "won" : "lost"
+              }`}
+            >
               <img
                 src={this.state.remainingCells === 0 ? smile : sad}
                 className="App-result-icon"
                 alt="game-result"
               />
-              <div className="result-text">{this.state.remainingCells === 0 ? 'Win' : 'Lost'}</div>
+              <div className="result-text">
+                {this.state.remainingCells === 0 ? "Win" : "Lost"}
+              </div>
               <div
                 className="replay"
-                onClick={() => this.setState({ gameState: GameState.INITIAL }, this.createGame)}
+                onClick={() =>
+                  this.setState(
+                    { gameState: GameState.INITIAL },
+                    this.createGame
+                  )
+                }
               >
                 Replay ?
               </div>

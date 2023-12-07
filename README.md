@@ -1,19 +1,30 @@
-# react-minesweeper
-The famous minesweeper game made with `React`, `Typescript`. The game is drawn with basic `css`. I used a `flood fill` algorithm to clear the empty cells with one click
+# React + TypeScript + Vite
 
-### What is a "Minesweeper"
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-A minesweeper is a very famous and popular game where you need to clear a whole board without detonating any mine hidden in it. [Wiki and rules](https://en.wikipedia.org/wiki/Minesweeper_(video_game)).
+Currently, two official plugins are available:
 
-### Gameplay
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-To launch this game of life, you have two solutions.
-* Download this repository, `npm install` and `npm start`
-* Visit [this page](https://guillaumemunsch.github.io/projects/react-minesweeper/index.html)
+## Expanding the ESLint configuration
 
-To play, you left click on the cells you want to clear and you can right click on the ones you want to flag.
-3 board sizes are available
+If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-### Example
+- Configure the top-level `parserOptions` property like this:
 
-![Screenshot](https://raw.githubusercontent.com/GuillaumeMunsch/react-minesweeper/master/public/react-minesweeper-icon.png)
+```js
+export default {
+  // other rules...
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    project: ['./tsconfig.json', './tsconfig.node.json'],
+    tsconfigRootDir: __dirname,
+  },
+}
+```
+
+- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
+- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
+- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
